@@ -15,34 +15,21 @@
       height: 100vh;
       overflow: hidden;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      /* Cosmic Gradient Background */
-      background: radial-gradient(circle at 50% 50%, #1a103c 0%, #0b0618 60%, #020108 100%);
+      /* Deep Cosmic Backdrop */
+      background: #030208;
     }
 
-    /* Cosmic Glow Overlay Effect */
-    body::before {
-      content: '';
-      position: absolute;
-      top: -20%; left: -20%;
-      width: 140%; height: 140%;
-      background: 
-        radial-gradient(circle at 20% 30%, rgba(138, 43, 226, 0.25) 0%, transparent 40%),
-        radial-gradient(circle at 80% 70%, rgba(0, 191, 255, 0.2) 0%, transparent 45%),
-        radial-gradient(circle at 50% 80%, rgba(255, 20, 147, 0.15) 0%, transparent 50%);
-      pointer-events: none;
-      z-index: 1;
-    }
-
+    /* Controls Panel */
     #controls {
       position: absolute;
       top: 20px;
       left: 20px;
-      background: rgba(15, 12, 30, 0.75);
-      backdrop-filter: blur(8px);
+      background: rgba(10, 12, 24, 0.85);
+      backdrop-filter: blur(10px);
       padding: 18px 22px;
       border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
       color: #e0e6ff;
       z-index: 10;
       width: 280px;
@@ -78,7 +65,6 @@
       position: absolute;
       top: 0;
       left: 0;
-      z-index: 2;
     }
 
     .hint {
@@ -98,16 +84,16 @@
 
   <div id="controls">
     <div class="control-group">
-      <label>Dot Radius: <span id="radiusVal">7</span>px</label>
-      <input type="range" id="dotRadius" min="4" max="18" value="7">
+      <label>Dot Radius: <span id="radiusVal">8</span>px</label>
+      <input type="range" id="dotRadius" min="5" max="20" value="8">
     </div>
     <div class="control-group">
-      <label>Max Distance: <span id="maxDistVal">120</span>px</label>
-      <input type="range" id="maxDist" min="40" max="300" value="120">
+      <label>Max Distance: <span id="maxDistVal">90</span>px</label>
+      <input type="range" id="maxDist" min="30" max="250" value="90">
     </div>
     <div class="control-group">
-      <label>Full Opacity Limit: <span id="fullDistVal">40</span>px</label>
-      <input type="range" id="fullDist" min="5" max="120" value="40">
+      <label>Full Opacity Limit: <span id="fullDistVal">30</span>px</label>
+      <input type="range" id="fullDist" min="5" max="100" value="30">
     </div>
   </div>
 
@@ -136,87 +122,103 @@
       document.getElementById('fullDistVal').innerText = e.target.value;
     });
 
-    // Generate accurate dot-matrix map for "CONSTELLATION GOD"
-    function getSpelledCoordinates() {
-      // Clean pixel map grids
-      const word1 = [
-        // C
-        [[1,0],[0,0],[0,1],[0,2],[1,2]],
-        // O
-        [[0,0],[1,0],[0,2],[1,2]],
-        // N
-        [[0,2],[0,0],[1,2],[1,0]],
-        // S
-        [[1,0],[0,0],[1,1],[0,2],[1,2]],
-        // T
-        [[0,0],[1,0],[2,0],[1,1],[1,2]],
-        // E
-        [[1,0],[0,0],[0,1],[1,1],[0,2],[1,2]],
-        // L
-        [[0,0],[0,1],[0,2],[1,2]],
-        // L
-        [[0,0],[0,1],[0,2],[1,2]],
-        // A
-        [[0,2],[0,0],[1,0],[1,1],[0,1],[1,2]],
-        // T
-        [[0,0],[1,0],[2,0],[1,1],[1,2]],
-        // I
-        [[0,0],[0,1],[0,2]],
-        // O
-        [[0,0],[1,0],[0,2],[1,2]],
-        // N
-        [[0,2],[0,0],[1,2],[1,0]]
-      ];
-
-      const word2 = [
-        // G
-        [[1,0],[0,0],[0,2],[1,2],[1,1]],
-        // O
-        [[0,0],[1,0],[0,2],[1,2]],
-        // D
-        [[0,0],[1,0],[1,2],[0,2],[1,1]]
-      ];
-
-      const points = [];
-      const scale = Math.min(width / 38, height / 22);
-      
-      // Word 1: CONSTELLATION (Top)
-      let startX = (width - (34 * scale)) / 2;
-      let startY = height * 0.28;
-
-      word1.forEach((letter) => {
-        letter.forEach(([px, py]) => {
-          points.push({ x: startX + px * scale, y: startY + py * scale });
+    // ----------------------------------------------------
+    // 1. Cosmic Background Generation (Nebula + Dim Stars)
+    // ----------------------------------------------------
+    let bgStars = [];
+    function generateBackgroundStars() {
+      bgStars = [];
+      const count = Math.floor((width * height) / 3000);
+      for (let i = 0; i < count; i++) {
+        bgStars.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          radius: Math.random() * 1.2 + 0.3,
+          alpha: Math.random() * 0.4 + 0.1, // Dim brightness
+          twinkleSpeed: (Math.random() - 0.5) * 0.005
         });
-        startX += 2.5 * scale;
-      });
-
-      // Word 2: GOD (Bottom)
-      startX = (width - (8 * scale)) / 2;
-      startY = height * 0.58;
-
-      word2.forEach((letter) => {
-        letter.forEach(([px, py]) => {
-          points.push({ x: startX + px * scale, y: startY + py * scale });
-        });
-        startX += 2.8 * scale;
-      });
-
-      return points;
+      }
     }
 
+    function drawCosmicBackground() {
+      // Base space gradient
+      const spaceGrd = ctx.createRadialGradient(width/2, height/2, 100, width/2, height/2, width*0.8);
+      spaceGrd.addColorStop(0, '#0f0a21');
+      spaceGrd.addColorStop(0.5, '#070412');
+      spaceGrd.addColorStop(1, '#020106');
+      ctx.fillStyle = spaceGrd;
+      ctx.fillRect(0, 0, width, height);
+
+      // Procedural soft nebula clouds
+      const nebulaGrd1 = ctx.createRadialGradient(width*0.3, height*0.4, 50, width*0.3, height*0.4, width*0.4);
+      nebulaGrd1.addColorStop(0, 'rgba(138, 43, 226, 0.12)');
+      nebulaGrd1.addColorStop(1, 'transparent');
+      ctx.fillStyle = nebulaGrd1;
+      ctx.fillRect(0, 0, width, height);
+
+      const nebulaGrd2 = ctx.createRadialGradient(width*0.7, height*0.6, 50, width*0.7, height*0.6, width*0.35);
+      nebulaGrd2.addColorStop(0, 'rgba(0, 150, 255, 0.09)');
+      nebulaGrd2.addColorStop(1, 'transparent');
+      ctx.fillStyle = nebulaGrd2;
+      ctx.fillRect(0, 0, width, height);
+
+      // Render dim, twinkling background stars
+      for (let star of bgStars) {
+        star.alpha += star.twinkleSpeed;
+        if (star.alpha <= 0.05 || star.alpha >= 0.45) star.twinkleSpeed *= -1;
+
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(200, 220, 255, ${star.alpha.toFixed(2)})`;
+        ctx.fill();
+      }
+    }
+
+    // ----------------------------------------------------
+    // 2. Exact Vector-Path Text Extraction for Star Nodes
+    // ----------------------------------------------------
     let stars = [];
     let draggedStar = null;
 
-    function buildStars() {
-      const coords = getSpelledCoordinates();
-      stars = coords.map(pt => ({
-        x: pt.x,
-        y: pt.y
-      }));
+    function buildPerfectTextStars() {
+      stars = [];
+
+      // Off-screen canvas to render target font
+      const offCanvas = document.createElement('canvas');
+      const offCtx = offCanvas.getContext('2d');
+      offCanvas.width = width;
+      offCanvas.height = height;
+
+      // Font scaling
+      const fontSize = Math.min(width / 13, height / 8);
+      offCtx.font = `900 ${fontSize}px "Arial Black", "Impact", sans-serif`;
+      offCtx.fillStyle = '#ffffff';
+      offCtx.textAlign = 'center';
+      offCtx.textBaseline = 'middle';
+
+      // Draw standard text onto off-screen canvas
+      offCtx.fillText("CONSTELLATION", width / 2, height * 0.38);
+      offCtx.fillText("GOD", width / 2, height * 0.58);
+
+      const imgData = offCtx.getImageData(0, 0, width, height).data;
+      
+      // Sample pixels on a dynamic grid based on screen size
+      const step = Math.max(12, Math.floor(fontSize / 5.5));
+
+      for (let y = 0; y < height; y += step) {
+        for (let x = 0; x < width; x += step) {
+          const index = (y * width + x) * 4;
+          // If pixel is white (part of the text stroke)
+          if (imgData[index + 3] > 128) {
+            stars.push({ x: x, y: y });
+          }
+        }
+      }
     }
 
-    // Drag Interaction
+    // ----------------------------------------------------
+    // 3. Drag Interaction
+    // ----------------------------------------------------
     function getPointerPos(e) {
       const rect = canvas.getBoundingClientRect();
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -230,7 +232,7 @@
       for (let star of stars) {
         const dx = star.x - pos.x;
         const dy = star.y - pos.y;
-        if (Math.sqrt(dx * dx + dy * dy) < Math.max(radius * 2, 25)) {
+        if (Math.sqrt(dx * dx + dy * dy) < Math.max(radius * 1.5, 20)) {
           draggedStar = star;
           break;
         }
@@ -259,18 +261,24 @@
     window.addEventListener('resize', () => {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
-      buildStars();
+      generateBackgroundStars();
+      buildPerfectTextStars();
     });
 
-    // Render Frame
+    // ----------------------------------------------------
+    // 4. Main Animation Loop
+    // ----------------------------------------------------
     function draw() {
       ctx.clearRect(0, 0, width, height);
+
+      // Render cosmic nebula and background stars
+      drawCosmicBackground();
 
       const maxDist = parseFloat(maxDistInput.value);
       const fullDist = Math.min(parseFloat(fullDistInput.value), maxDist);
       const radius = parseFloat(dotRadiusInput.value);
 
-      // 1. Draw Fading Connection Lines
+      // Render Fading Connection Lines
       for (let i = 0; i < stars.length; i++) {
         for (let j = i + 1; j < stars.length; j++) {
           const dx = stars[i].x - stars[j].x;
@@ -286,30 +294,30 @@
             ctx.beginPath();
             ctx.moveTo(stars[i].x, stars[i].y);
             ctx.lineTo(stars[j].x, stars[j].y);
-            ctx.strokeStyle = `rgba(120, 200, 255, ${alpha.toFixed(3)})`;
-            ctx.lineWidth = 1.5;
+            ctx.strokeStyle = `rgba(130, 200, 255, ${alpha.toFixed(3)})`;
+            ctx.lineWidth = 1.2;
             ctx.stroke();
           }
         }
       }
 
-      // 2. Draw Large Glowing Star Nodes
+      // Render Large Glowing Star Nodes
       for (let star of stars) {
-        // Outer Radial Glow
+        // Outer Radial Glow Halo
         const glowGradient = ctx.createRadialGradient(
           star.x, star.y, 0,
-          star.x, star.y, radius * 2.5
+          star.x, star.y, radius * 2.2
         );
         glowGradient.addColorStop(0, 'rgba(0, 210, 255, 0.8)');
-        glowGradient.addColorStop(0.5, 'rgba(138, 43, 226, 0.3)');
+        glowGradient.addColorStop(0.5, 'rgba(138, 43, 226, 0.25)');
         glowGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
         ctx.beginPath();
-        ctx.arc(star.x, star.y, radius * 2.5, 0, Math.PI * 2);
+        ctx.arc(star.x, star.y, radius * 2.2, 0, Math.PI * 2);
         ctx.fillStyle = glowGradient;
         ctx.fill();
 
-        // Inner Solid Core
+        // Inner Solid Star Core
         ctx.beginPath();
         ctx.arc(star.x, star.y, radius, 0, Math.PI * 2);
         ctx.fillStyle = '#ffffff';
@@ -319,7 +327,9 @@
       requestAnimationFrame(draw);
     }
 
-    buildStars();
+    // Initialization
+    generateBackgroundStars();
+    buildPerfectTextStars();
     draw();
   </script>
 </body>
