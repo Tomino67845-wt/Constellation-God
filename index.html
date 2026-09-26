@@ -2,105 +2,103 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Cosmic Constellation Canvas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Constellation Studio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
     * {
       box-sizing: border-box;
       user-select: none;
+      -webkit-user-select: none;
     }
-    body {
+    body, html {
       margin: 0;
       padding: 0;
-      width: 100vw;
-      height: 100vh;
+      width: 100%;
+      height: 100%;
       overflow: hidden;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #030208;
+      background-color: #030208;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
-
-    /* Controls Panel */
-    #controls {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      background: rgba(10, 12, 24, 0.85);
-      backdrop-filter: blur(10px);
-      padding: 18px 22px;
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
-      color: #e0e6ff;
-      z-index: 10;
-      width: 280px;
-    }
-
-    .control-group {
-      margin-bottom: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-
-    .control-group label {
-      font-size: 13px;
-      letter-spacing: 0.5px;
-      color: #a0acdb;
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .control-group label span {
-      color: #00d2ff;
-      font-weight: bold;
-    }
-
-    input[type=range] {
-      accent-color: #00d2ff;
-      cursor: pointer;
-    }
-
     canvas {
       display: block;
       position: absolute;
       top: 0;
       left: 0;
-    }
-
-    .hint {
-      position: absolute;
-      bottom: 20px;
       width: 100%;
-      text-align: center;
-      color: rgba(160, 172, 219, 0.5);
-      font-size: 13px;
-      letter-spacing: 1px;
-      pointer-events: none;
-      z-index: 10;
+      height: 100%;
+    }
+    .panel-glass {
+      background: rgba(12, 14, 28, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+    }
+    input[type=range] {
+      accent-color: #38bdf8;
     }
   </style>
 </head>
-<body>
+<body class="relative w-full h-full text-slate-200">
 
-  <div id="controls">
-    <div class="control-group">
-      <label>Dot Radius: <span id="radiusVal">8</span>px</label>
-      <input type="range" id="dotRadius" min="5" max="20" value="8">
+  <canvas id="constellationCanvas"></canvas>
+
+  <!-- Interactive Floating Control Panel -->
+  <div class="absolute top-4 left-4 z-20 w-80 max-w-[calc(100vw-2rem)] panel-glass rounded-2xl p-5 transition-all duration-300">
+    <div class="flex items-center justify-between mb-4 pb-2 border-b border-white/10">
+      <div class="flex items-center space-x-2">
+        <div class="w-3 h-3 rounded-full bg-cyan-400 shadow-[0_0_10px_#38bdf8]"></div>
+        <h1 class="font-bold text-sm tracking-wider uppercase text-white">Constellation Studio</h1>
+      </div>
+      <span class="text-[10px] uppercase font-semibold px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">Vector Paths</span>
     </div>
-    <div class="control-group">
-      <label>Max Distance: <span id="maxDistVal">95</span>px</label>
-      <input type="range" id="maxDist" min="30" max="250" value="95">
+
+    <!-- Slider 1: Dot Radius -->
+    <div class="space-y-1 mb-4">
+      <div class="flex justify-between text-xs text-slate-300">
+        <span>Star Node Radius</span>
+        <span id="radiusVal" class="font-mono text-cyan-400 font-bold">5px</span>
+      </div>
+      <input type="range" id="dotRadius" min="2" max="14" value="5" class="w-full h-1.5 bg-slate-700/60 rounded-lg appearance-none cursor-pointer">
     </div>
-    <div class="control-group">
-      <label>Full Opacity Limit: <span id="fullDistVal">32</span>px</label>
-      <input type="range" id="fullDist" min="5" max="100" value="32">
+
+    <!-- Slider 2: Max Line Connection Distance -->
+    <div class="space-y-1 mb-4">
+      <div class="flex justify-between text-xs text-slate-300">
+        <span>Max Fade Distance</span>
+        <span id="maxDistVal" class="font-mono text-cyan-400 font-bold">120px</span>
+      </div>
+      <input type="range" id="maxDist" min="40" max="300" value="120" class="w-full h-1.5 bg-slate-700/60 rounded-lg appearance-none cursor-pointer">
+    </div>
+
+    <!-- Slider 3: Full Opacity Limit -->
+    <div class="space-y-1 mb-4">
+      <div class="flex justify-between text-xs text-slate-300">
+        <span>Full Opacity Distance</span>
+        <span id="fullDistVal" class="font-mono text-cyan-400 font-bold">35px</span>
+      </div>
+      <input type="range" id="fullDist" min="5" max="120" value="35" class="w-full h-1.5 bg-slate-700/60 rounded-lg appearance-none cursor-pointer">
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="pt-2 flex gap-2">
+      <button id="resetBtn" class="w-full py-2 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-slate-200 transition-colors flex items-center justify-center gap-1.5 active:scale-[0.98]">
+        <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        Reset Nodes
+      </button>
     </div>
   </div>
 
-  <div class="hint">DRAG ANY STAR TO MOVE IT FREELY</div>
-  <canvas id="canvas"></canvas>
+  <!-- Bottom Interactive Helper Hint -->
+  <div class="absolute bottom-6 left-0 w-full text-center pointer-events-none z-10 px-4">
+    <span class="inline-block px-4 py-2 rounded-full panel-glass text-xs font-medium text-slate-300 shadow-xl border border-white/10 tracking-wider uppercase">
+      ✦ Drag any star node to bend and stretch vector line strokes ✦
+    </span>
+  </div>
 
   <script>
-    const canvas = document.getElementById('canvas');
+    const canvas = document.getElementById('constellationCanvas');
     const ctx = canvas.getContext('2d');
 
     let width = canvas.width = window.innerWidth;
@@ -110,15 +108,16 @@
     const dotRadiusInput = document.getElementById('dotRadius');
     const maxDistInput = document.getElementById('maxDist');
     const fullDistInput = document.getElementById('fullDist');
+    const resetBtn = document.getElementById('resetBtn');
 
     dotRadiusInput.addEventListener('input', (e) => {
-      document.getElementById('radiusVal').innerText = e.target.value;
+      document.getElementById('radiusVal').innerText = e.target.value + 'px';
     });
     maxDistInput.addEventListener('input', (e) => {
-      document.getElementById('maxDistVal').innerText = e.target.value;
+      document.getElementById('maxDistVal').innerText = e.target.value + 'px';
     });
     fullDistInput.addEventListener('input', (e) => {
-      document.getElementById('fullDistVal').innerText = e.target.value;
+      document.getElementById('fullDistVal').innerText = e.target.value + 'px';
     });
 
     // ----------------------------------------------------
@@ -127,95 +126,165 @@
     let bgStars = [];
     function generateBackgroundStars() {
       bgStars = [];
-      const count = Math.floor((width * height) / 2800);
+      const count = Math.floor((width * height) / 2500);
       for (let i = 0; i < count; i++) {
         bgStars.push({
           x: Math.random() * width,
           y: Math.random() * height,
-          radius: Math.random() * 1.2 + 0.3,
-          alpha: Math.random() * 0.4 + 0.1,
-          twinkleSpeed: (Math.random() - 0.5) * 0.005
+          radius: Math.random() * 1.3 + 0.3,
+          alpha: Math.random() * 0.35 + 0.05,
+          twinkleSpeed: (Math.random() - 0.5) * 0.006
         });
       }
     }
 
     function drawCosmicBackground() {
-      // Deep Space Base
-      const spaceGrd = ctx.createRadialGradient(width/2, height/2, 100, width/2, height/2, width*0.85);
-      spaceGrd.addColorStop(0, '#0f0a21');
-      spaceGrd.addColorStop(0.5, '#070412');
+      // Deep space radial base
+      const spaceGrd = ctx.createRadialGradient(width / 2, height / 2, 80, width / 2, height / 2, Math.max(width, height) * 0.75);
+      spaceGrd.addColorStop(0, '#0c0a21');
+      spaceGrd.addColorStop(0.5, '#060412');
       spaceGrd.addColorStop(1, '#020106');
       ctx.fillStyle = spaceGrd;
       ctx.fillRect(0, 0, width, height);
 
-      // Nebula Cloud 1
-      const nebulaGrd1 = ctx.createRadialGradient(width*0.3, height*0.35, 50, width*0.3, height*0.35, width*0.45);
-      nebulaGrd1.addColorStop(0, 'rgba(138, 43, 226, 0.14)');
+      // Deep Purple Nebula Cloud
+      const nebulaGrd1 = ctx.createRadialGradient(width * 0.35, height * 0.4, 40, width * 0.35, height * 0.4, width * 0.45);
+      nebulaGrd1.addColorStop(0, 'rgba(124, 58, 237, 0.12)');
       nebulaGrd1.addColorStop(1, 'transparent');
       ctx.fillStyle = nebulaGrd1;
       ctx.fillRect(0, 0, width, height);
 
-      // Nebula Cloud 2
-      const nebulaGrd2 = ctx.createRadialGradient(width*0.7, height*0.65, 50, width*0.7, height*0.65, width*0.4);
-      nebulaGrd2.addColorStop(0, 'rgba(0, 150, 255, 0.11)');
+      // Deep Cyan/Blue Nebula Cloud
+      const nebulaGrd2 = ctx.createRadialGradient(width * 0.68, height * 0.6, 50, width * 0.68, height * 0.6, width * 0.4);
+      nebulaGrd2.addColorStop(0, 'rgba(14, 165, 233, 0.1)');
       nebulaGrd2.addColorStop(1, 'transparent');
       ctx.fillStyle = nebulaGrd2;
       ctx.fillRect(0, 0, width, height);
 
-      // Dim Twinkling Stars
-      for (let star of bgStars) {
+      // Render subtle twinkling background stars
+      for (let i = 0; i < bgStars.length; i++) {
+        const star = bgStars[i];
         star.alpha += star.twinkleSpeed;
-        if (star.alpha <= 0.05 || star.alpha >= 0.45) star.twinkleSpeed *= -1;
+        if (star.alpha <= 0.05 || star.alpha >= 0.4) star.twinkleSpeed *= -1;
 
         ctx.beginPath();
         ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(200, 220, 255, ${star.alpha.toFixed(2)})`;
+        ctx.fillStyle = `rgba(186, 230, 253, ${Math.max(0, star.alpha).toFixed(2)})`;
         ctx.fill();
       }
     }
 
     // ----------------------------------------------------
-    // 2. Vector Text Path Sampling (Bigger Text + More Vertical Spacing)
+    // 2. Vector Letter Path Stroke Definitions
     // ----------------------------------------------------
-    let stars = [];
-    let draggedStar = null;
+    // Grid coordinate normalized definitions for letter strokes [x0, y0, x1, y1]
+    const LETTER_STROKES = {
+      'C': [[0.8, 0.15], [0.3, 0.15], [0.15, 0.5], [0.3, 0.85], [0.8, 0.85]],
+      'O': [[0.5, 0.15], [0.15, 0.5], [0.5, 0.85], [0.85, 0.5], [0.5, 0.15]],
+      'N': [[0.15, 0.85], [0.15, 0.15], [0.85, 0.85], [0.85, 0.15]],
+      'S': [[0.8, 0.2], [0.3, 0.15], [0.2, 0.45], [0.8, 0.55], [0.7, 0.85], [0.2, 0.8]],
+      'T': [[0.15, 0.15], [0.85, 0.15], [0.5, 0.15], [0.5, 0.85]],
+      'E': [[0.8, 0.15], [0.15, 0.15], [0.15, 0.85], [0.8, 0.85], [0.15, 0.5], [0.65, 0.5]],
+      'L': [[0.2, 0.15], [0.2, 0.85], [0.8, 0.85]],
+      'A': [[0.15, 0.85], [0.5, 0.15], [0.85, 0.85], [0.3, 0.55], [0.7, 0.55]],
+      'I': [[0.2, 0.15], [0.8, 0.15], [0.5, 0.15], [0.5, 0.85], [0.2, 0.85], [0.8, 0.85]],
+      'G': [[0.8, 0.25], [0.35, 0.15], [0.15, 0.5], [0.35, 0.85], [0.85, 0.85], [0.85, 0.5], [0.5, 0.5]],
+      'D': [[0.15, 0.15], [0.15, 0.85], [0.6, 0.85], [0.85, 0.5], [0.6, 0.15], [0.15, 0.15]]
+    };
 
-    function buildPerfectTextStars() {
-      stars = [];
+    let starNodes = [];
+    let strokeConnections = [];
+    let draggedNode = null;
 
-      const offCanvas = document.createElement('canvas');
-      const offCtx = offCanvas.getContext('2d');
-      offCanvas.width = width;
-      offCanvas.height = height;
+    function buildConstellationText() {
+      starNodes = [];
+      strokeConnections = [];
 
-      // Increased font size scaling
-      const fontSize = Math.min(width / 11, height / 6.5);
-      offCtx.font = `900 ${fontSize}px "Arial Black", "Impact", sans-serif`;
-      offCtx.fillStyle = '#ffffff';
-      offCtx.textAlign = 'center';
-      offCtx.textBaseline = 'middle';
+      const wordTop = "CONSTELLATION";
+      const wordBottom = "GOD";
 
-      // Increased vertical spacing between "CONSTELLATION" and "GOD"
-      offCtx.fillText("CONSTELLATION", width / 2, height * 0.32);
-      offCtx.fillText("GOD", width / 2, height * 0.65);
+      // Scale calculations for dynamic responsiveness
+      const charWidth = Math.min(width / 15, 75);
+      const charHeight = charWidth * 1.35;
+      const spacing = charWidth * 0.12;
 
-      const imgData = offCtx.getImageData(0, 0, width, height).data;
-      
-      // Step interval tuned for clean letter density
-      const step = Math.max(13, Math.floor(fontSize / 5.2));
+      // Density of star dots along stroke line segments
+      const segmentStep = Math.max(14, charWidth * 0.28);
 
-      for (let y = 0; y < height; y += step) {
-        for (let x = 0; x < width; x += step) {
-          const index = (y * width + x) * 4;
-          if (imgData[index + 3] > 128) {
-            stars.push({ x: x, y: y });
+      function processWord(word, startY) {
+        const totalWordWidth = word.length * charWidth + (word.length - 1) * spacing;
+        const startX = (width - totalWordWidth) / 2;
+
+        for (let i = 0; i < word.length; i++) {
+          const char = word[i];
+          const letterX = startX + i * (charWidth + spacing);
+          const letterY = startY;
+
+          const points = LETTER_STROKES[char];
+          if (!points) continue;
+
+          let prevNodeIndex = null;
+
+          for (let p = 0; p < points.length; p++) {
+            const pt = points[p];
+            const targetX = letterX + pt[0] * charWidth;
+            const targetY = letterY + pt[1] * charHeight;
+
+            if (p === 0 || prevNodeIndex === null) {
+              // Add origin point of stroke path
+              const newIndex = addOrGetNode(targetX, targetY);
+              prevNodeIndex = newIndex;
+            } else {
+              // Interpolate intermediate nodes along line segment
+              const prevNode = starNodes[prevNodeIndex];
+              const dx = targetX - prevNode.x;
+              const dy = targetY - prevNode.y;
+              const dist = Math.hypot(dx, dy);
+
+              const steps = Math.max(1, Math.round(dist / segmentStep));
+              let currentFromIndex = prevNodeIndex;
+
+              for (let s = 1; s <= steps; s++) {
+                const ratio = s / steps;
+                const nx = prevNode.x + dx * ratio;
+                const ny = prevNode.y + dy * ratio;
+
+                const nextIndex = addOrGetNode(nx, ny);
+                
+                // Record explicit structural stroke connection line
+                if (currentFromIndex !== nextIndex) {
+                  strokeConnections.push({ from: currentFromIndex, to: nextIndex });
+                }
+                currentFromIndex = nextIndex;
+              }
+              prevNodeIndex = currentFromIndex;
+            }
           }
         }
       }
+
+      // Render top word and bottom word
+      const topY = height * 0.28 - charHeight / 2;
+      const bottomY = height * 0.62 - charHeight / 2;
+
+      processWord(wordTop, topY);
+      processWord(wordBottom, bottomY);
+    }
+
+    function addOrGetNode(x, y) {
+      // Deduplicate close corner/intersection points
+      for (let i = 0; i < starNodes.length; i++) {
+        const node = starNodes[i];
+        if (Math.hypot(node.x - x, node.y - y) < 4) {
+          return i;
+        }
+      }
+      starNodes.push({ x, y, origX: x, origY: y });
+      return starNodes.length - 1;
     }
 
     // ----------------------------------------------------
-    // 3. Drag Interaction
+    // 3. Touch & Mouse Drag Handlers
     // ----------------------------------------------------
     function getPointerPos(e) {
       const rect = canvas.getBoundingClientRect();
@@ -224,49 +293,59 @@
       return { x: clientX - rect.left, y: clientY - rect.top };
     }
 
-    function onStart(e) {
+    function onPointerStart(e) {
       const pos = getPointerPos(e);
       const radius = parseFloat(dotRadiusInput.value);
-      for (let star of stars) {
-        const dx = star.x - pos.x;
-        const dy = star.y - pos.y;
-        if (Math.sqrt(dx * dx + dy * dy) < Math.max(radius * 1.5, 20)) {
-          draggedStar = star;
-          break;
+      const grabRadius = Math.max(radius * 2.5, 22);
+
+      let closestDist = Infinity;
+      let closestNode = null;
+
+      for (let i = 0; i < starNodes.length; i++) {
+        const node = starNodes[i];
+        const dist = Math.hypot(node.x - pos.x, node.y - pos.y);
+        if (dist < grabRadius && dist < closestDist) {
+          closestDist = dist;
+          closestNode = node;
         }
       }
+      draggedNode = closestNode;
     }
 
-    function onMove(e) {
-      if (draggedStar) {
+    function onPointerMove(e) {
+      if (draggedNode) {
         const pos = getPointerPos(e);
-        draggedStar.x = pos.x;
-        draggedStar.y = pos.y;
+        draggedNode.x = pos.x;
+        draggedNode.y = pos.y;
       }
     }
 
-    function onEnd() {
-      draggedStar = null;
+    function onPointerEnd() {
+      draggedNode = null;
     }
 
-    window.addEventListener('mousedown', onStart);
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', onEnd);
-    window.addEventListener('touchstart', onStart, { passive: true });
-    window.addEventListener('touchmove', onMove, { passive: true });
-    window.addEventListener('touchend', onEnd);
+    window.addEventListener('mousedown', onPointerStart);
+    window.addEventListener('mousemove', onPointerMove);
+    window.addEventListener('mouseup', onPointerEnd);
+    window.addEventListener('touchstart', onPointerStart, { passive: true });
+    window.addEventListener('touchmove', onPointerMove, { passive: true });
+    window.addEventListener('touchend', onPointerEnd);
+
+    resetBtn.addEventListener('click', () => {
+      buildConstellationText();
+    });
 
     window.addEventListener('resize', () => {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
       generateBackgroundStars();
-      buildPerfectTextStars();
+      buildConstellationText();
     });
 
     // ----------------------------------------------------
-    // 4. Main Render Loop
+    // 4. Main Animation Render Loop
     // ----------------------------------------------------
-    function draw() {
+    function animate() {
       ctx.clearRect(0, 0, width, height);
 
       // Render cosmic nebula and background stars
@@ -276,59 +355,69 @@
       const fullDist = Math.min(parseFloat(fullDistInput.value), maxDist);
       const radius = parseFloat(dotRadiusInput.value);
 
-      // Render Fading Lines
-      for (let i = 0; i < stars.length; i++) {
-        for (let j = i + 1; j < stars.length; j++) {
-          const dx = stars[i].x - stars[j].x;
-          const dy = stars[i].y - stars[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
+      // Render explicit text stroke paths with distance opacity fading
+      for (let i = 0; i < strokeConnections.length; i++) {
+        const conn = strokeConnections[i];
+        const nodeA = starNodes[conn.from];
+        const nodeB = starNodes[conn.to];
 
-          if (dist <= maxDist) {
-            let alpha = 1.0;
-            if (dist > fullDist) {
-              alpha = 1.0 - (dist - fullDist) / (maxDist - fullDist);
-            }
+        const dx = nodeA.x - nodeB.x;
+        const dy = nodeA.y - nodeB.y;
+        const dist = Math.hypot(dx, dy);
 
-            ctx.beginPath();
-            ctx.moveTo(stars[i].x, stars[i].y);
-            ctx.lineTo(stars[j].x, stars[j].y);
-            ctx.strokeStyle = `rgba(130, 200, 255, ${alpha.toFixed(3)})`;
-            ctx.lineWidth = 1.3;
-            ctx.stroke();
+        if (dist <= maxDist) {
+          let alpha = 1.0;
+          if (dist > fullDist) {
+            alpha = 1.0 - (dist - fullDist) / (maxDist - fullDist);
           }
+
+          ctx.beginPath();
+          ctx.moveTo(nodeA.x, nodeA.y);
+          ctx.lineTo(nodeB.x, nodeB.y);
+
+          // Glowing cyan stroke line
+          ctx.strokeStyle = `rgba(56, 189, 248, ${alpha.toFixed(3)})`;
+          ctx.lineWidth = 2.2;
+          ctx.shadowColor = 'rgba(56, 189, 248, 0.7)';
+          ctx.shadowBlur = alpha > 0.5 ? 8 : 0;
+          ctx.stroke();
+          ctx.shadowBlur = 0;
         }
       }
 
-      // Render Star Core & Halos
-      for (let star of stars) {
-        // Outer Radial Glow Halo
+      // Render star node dots
+      for (let i = 0; i < starNodes.length; i++) {
+        const node = starNodes[i];
+
+        // Star Outer Halo Glow
+        const glowRadius = radius * 2.8;
         const glowGradient = ctx.createRadialGradient(
-          star.x, star.y, 0,
-          star.x, star.y, radius * 2.2
+          node.x, node.y, 0,
+          node.x, node.y, glowRadius
         );
-        glowGradient.addColorStop(0, 'rgba(0, 210, 255, 0.85)');
-        glowGradient.addColorStop(0.5, 'rgba(138, 43, 226, 0.25)');
+        glowGradient.addColorStop(0, 'rgba(56, 189, 248, 0.85)');
+        glowGradient.addColorStop(0.45, 'rgba(124, 58, 237, 0.3)');
         glowGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
         ctx.beginPath();
-        ctx.arc(star.x, star.y, radius * 2.2, 0, Math.PI * 2);
+        ctx.arc(node.x, node.y, glowRadius, 0, Math.PI * 2);
         ctx.fillStyle = glowGradient;
         ctx.fill();
 
-        // Inner Star Core
+        // Star Core
         ctx.beginPath();
-        ctx.arc(star.x, star.y, radius, 0, Math.PI * 2);
+        ctx.arc(node.x, node.y, radius, 0, Math.PI * 2);
         ctx.fillStyle = '#ffffff';
         ctx.fill();
       }
 
-      requestAnimationFrame(draw);
+      requestAnimationFrame(animate);
     }
 
     // Initialization
     generateBackgroundStars();
-    buildPerfectTextStars();
-    draw();
+    buildConstellationText();
+    animate();
   </script>
 </body>
 </html>
